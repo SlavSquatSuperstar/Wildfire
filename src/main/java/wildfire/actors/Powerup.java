@@ -1,4 +1,9 @@
+package wildfire.actors;
+
 import greenfoot.*;
+import wildfire.Assets;
+import wildfire.Constants;
+import wildfire.Counter;
 
 /**
  * An interactable image that provides a cooldown.
@@ -18,14 +23,14 @@ public class Powerup extends UIIcon {
 
         switch (state) {
             case WAIT:
-            if (cooldown.value() <= 0)
-                state = State.READY;
-            break;
+                if (cooldown.value() <= 0)
+                    state = State.READY;
+                break;
 
             case READY:
-            if (Greenfoot.mouseClicked(this) || Greenfoot.isKeyDown("Space"))
-                state = State.ACTIVE;
-            break;
+                if (Greenfoot.mouseClicked(this) || Greenfoot.isKeyDown("Space"))
+                    state = State.ACTIVE;
+                break;
         }
 
         setImage(state.icon);
@@ -44,11 +49,9 @@ public class Powerup extends UIIcon {
     }
 
     private enum State {
-        READY(Constants.RAIN_READY), 
-
-        ACTIVE(Constants.RAIN_ACTIVE), 
-
-        WAIT(Constants.RAIN_WAIT);
+        READY(Assets.RAIN_READY),
+        ACTIVE(Assets.RAIN_ACTIVE),
+        WAIT(Assets.RAIN_WAIT);
 
         GreenfootImage icon;
 

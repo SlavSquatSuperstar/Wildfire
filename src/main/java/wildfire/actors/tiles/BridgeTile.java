@@ -1,4 +1,9 @@
+package wildfire.actors.tiles;
+
 import greenfoot.*;
+import wildfire.Assets;
+import wildfire.Constants;
+import wildfire.Counter;
 
 /**
  * A wooden tile used to build a bridge.
@@ -9,8 +14,12 @@ public class BridgeTile extends Buildable {
     private Counter counter = new Counter(0, true);
     private State state = State.NORMAL;
 
+    public BridgeTile() {
+        setImage(Assets.BRIDGE_TILE);
+    }
+
     @Override
-    public void act() {        
+    public void act() {
         counter.count();
 
         if (counter.value() <= 0) {
@@ -28,7 +37,7 @@ public class BridgeTile extends Buildable {
                 }
 
                 // Spread fire to non-wet neighbours if under health threshold
-                if (percentHealth() <= Constants.SPREAD_THRESHOLD){
+                if (percentHealth() <= Constants.SPREAD_THRESHOLD) {
                     for (BridgeTile tile : getNeighbours(1, false, BridgeTile.class))
                         tile.ignite();
 
@@ -66,28 +75,28 @@ public class BridgeTile extends Buildable {
         if (state == State.WET)
             counter.setMax(Constants.WET_DURATION);
         else
-            counter.setMax(Constants.FIRE_DELAY);  
+            counter.setMax(Constants.FIRE_DELAY);
         counter.reset();
         updateImage();
     }
 
     private void updateImage() {
         // Set a fresh image
-        setImage(Constants.BRIDGE_TILE);
+        setImage(Assets.BRIDGE_TILE);
 
         // Draw the damage overlay
         if (percentHealth() <= 0.25)
-            drawImage(Constants.OVERLAY3);
+            drawImage(Assets.OVERLAY3);
         if (percentHealth() <= 0.5)
-            drawImage(Constants.OVERLAY2);
+            drawImage(Assets.OVERLAY2);
         if (percentHealth() <= 0.75)
-            drawImage(Constants.OVERLAY1);
+            drawImage(Assets.OVERLAY1);
 
         // Draw the status overlay
-        if (state == State.BURNING) 
-            drawImage(Constants.FLAME);
+        if (state == State.BURNING)
+            drawImage(Assets.FLAME);
         else if (state == State.WET)
-            drawImage(Constants.WATER_OVERLAY);
+            drawImage(Assets.WATER_OVERLAY);
     }
 
     private void drawImage(GreenfootImage img) {

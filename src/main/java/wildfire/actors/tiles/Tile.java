@@ -1,7 +1,8 @@
+package wildfire.actors.tiles;
+
 import greenfoot.*;
 
 import java.awt.Point;
-import java.util.List;
 
 /**
  * A physical object inside the world.
@@ -27,7 +28,7 @@ public abstract class Tile extends Actor {
 
     /**
      * Measure how optimal this tile is to travel on. Used in the A* Pathfinding Algorithm.
-     * 
+     *
      * @return The aggregate distance from this tile to both endpoints.
      */
     public int getFCost(Tile start, Tile finish) {

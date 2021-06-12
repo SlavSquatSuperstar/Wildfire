@@ -1,3 +1,5 @@
+package wildfire;
+
 import greenfoot.Greenfoot;
 
 import java.util.IllegalFormatException;

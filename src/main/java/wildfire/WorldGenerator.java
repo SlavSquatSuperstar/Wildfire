@@ -1,8 +1,7 @@
-import greenfoot.*;
+package wildfire;
 
 import java.util.*;
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
 
 /**
  * A utility class for randomly generating worlds.

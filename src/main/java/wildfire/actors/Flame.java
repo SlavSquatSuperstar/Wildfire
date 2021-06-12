@@ -1,4 +1,11 @@
+package wildfire.actors;
+
 import greenfoot.*;
+import wildfire.Assets;
+import wildfire.Constants;
+import wildfire.Counter;
+import wildfire.actors.tiles.BridgeTile;
+import wildfire.actors.tiles.Obstacle;
 
 /**
  * A burning ball of fire that ignites wooden tiles.
@@ -11,10 +18,11 @@ public class Flame extends Actor {
 
     /**
      * Initializes a flame with a direction.
-     * 
-     * @param Up, down, left, or right.
+     *
+     * @param dir Up, down, left, or right.
      */
     public Flame(String dir) {
+        setImage(Assets.FLAME);
         this.dir = Direction.valueOf(dir.toUpperCase());
         moveCounter = new Counter(Constants.METEOR_MOVE_DELAY, true);
     }
@@ -31,17 +39,17 @@ public class Flame extends Actor {
             // Move
             switch (dir) {
                 case UP:
-                setLocation(getX(), getY() - 1);
-                break;
+                    setLocation(getX(), getY() - 1);
+                    break;
                 case DOWN:
-                setLocation(getX(), getY() + 1);
-                break;
+                    setLocation(getX(), getY() + 1);
+                    break;
                 case LEFT:
-                setLocation(getX() - 1, getY());
-                break;
+                    setLocation(getX() - 1, getY());
+                    break;
                 case RIGHT:
-                setLocation(getX() + 1, getY());
-                break;
+                    setLocation(getX() + 1, getY());
+                    break;
             }
         }
 

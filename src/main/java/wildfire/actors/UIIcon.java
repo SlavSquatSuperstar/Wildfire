@@ -1,3 +1,5 @@
+package wildfire.actors;
+
 import greenfoot.*;
 
 /**
@@ -9,8 +11,8 @@ public class UIIcon extends Actor {
         setImage(image);
     }
 
-    //public void setVisible(boolean visible) {
-    //  getImage().setTransparency(visible ? 255 : 0);
-    //}
+    public void setVisible(boolean visible) {
+        getImage().setTransparency(visible ? 255 : 0);
+    }
 
 }

@@ -1,3 +1,5 @@
+package wildfire;
+
 /**
  * An game component used to time events.
  */

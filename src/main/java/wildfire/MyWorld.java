@@ -1,4 +1,8 @@
+package wildfire;
+
 import greenfoot.*;
+import wildfire.actors.*;
+import wildfire.actors.tiles.*;
 
 import java.awt.Point;
 
@@ -24,7 +28,7 @@ public class MyWorld extends World {
 
     public MyWorld() {
         super(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT, Constants.TILE_SIZE);
-        Util.log("===========================");
+        Util.log("===================================");
         Util.log("Game starting. Place any tile!");
         init();
     }
@@ -32,7 +36,7 @@ public class MyWorld extends World {
     /**
      * Set up the stage.
      */
-    private void init() {    
+    private void init() {
         buildCounter = new Counter(0, false);
         fireCounter = new Counter(Constants.METEOR_DELAY, false);
 
@@ -40,8 +44,8 @@ public class MyWorld extends World {
         WorldGenerator gen = new WorldGenerator(getWidth(), getHeight());
 
         // Create UI elements
-        addObject(buildIcon = new UIIcon(Constants.BUILD_READY), getWidth() - 2, getHeight() - 1);
-        addObject(adrenalineIcon = new UIIcon(Constants.ADRENALINE_IDLE), buildIcon.getX() - 2, buildIcon.getY());
+        addObject(buildIcon = new UIIcon(Assets.BUILD_READY), getWidth() - 2, getHeight() - 1);
+        addObject(adrenalineIcon = new UIIcon(Assets.ADRENALINE_IDLE), buildIcon.getX() - 2, buildIcon.getY());
         addObject(rainIcon = new Powerup(), adrenalineIcon.getX() - 2, buildIcon.getY());
 
         // Add start and finish tiles
@@ -70,13 +74,13 @@ public class MyWorld extends World {
 
         // Check for player input
         if (buildCounter.value() <= 0) { // Only allow buidling/breaking tiles once cooldown reached
-            buildIcon.setImage(Constants.BUILD_READY);
+            buildIcon.setImage(Assets.BUILD_READY);
             if (Greenfoot.mouseClicked(null))
                 buildTile(Greenfoot.getMouseInfo());
         } else if (buildCounter.value() <= Constants.BUILD_COOLDOWN / 2) {
-            buildIcon.setImage(Constants.BUILD_WAIT2);
+            buildIcon.setImage(Assets.BUILD_WAIT2);
         } else {
-            buildIcon.setImage(Constants.BUILD_WAIT1);
+            buildIcon.setImage(Assets.BUILD_WAIT1);
         }
 
         if (!buildCounter.started)
@@ -116,7 +120,7 @@ public class MyWorld extends World {
                 continue;
             // Don't count if tile completely blocked
             double distance = tile.getDistance(new Point(x, y));
-            if (distance < min){
+            if (distance < min) {
                 min = distance;
                 nearest = tile;
             }
@@ -127,7 +131,7 @@ public class MyWorld extends World {
 
         lastNearest = nearest;
 
-        removeObjects(getObjects(BuildPreview.class));
+        removeObjects(getObjects(PreviewTile.class));
         if (lastNearest != null)
             lastNearest.showBuildableSpots();
     }
@@ -144,7 +148,7 @@ public class MyWorld extends World {
         boolean worldChanged = false; // Only reset build cooldown if a block was modified
 
         // When mouse clicked on a tile
-        if (mouse.getButton() == 1) {  
+        if (mouse.getButton() == 1) {
             // If the powerup is active, extinguish the tile at this cell if it exists
             if (rainIcon.isActive() && getObject(x, y, BridgeTile.class) != null) {
                 for (int x0 = x - 1; x0 <= x + 1; x0++)
@@ -190,11 +194,10 @@ public class MyWorld extends World {
         // Reset build timer
         if (burningCount / (double) tiles.size() >= Constants.ADRENALINE_THRESHOLD) {
             buildCounter.setMax((int) (Constants.BUILD_COOLDOWN * Constants.ADRENALINE_REDUCTION));
-            adrenalineIcon.setImage(Constants.ADRENALINE_ACTIVE);
-        }
-        else {
+            adrenalineIcon.setImage(Assets.ADRENALINE_ACTIVE);
+        } else {
             buildCounter.setMax(Constants.BUILD_COOLDOWN);
-            adrenalineIcon.setImage(Constants.ADRENALINE_IDLE);
+            adrenalineIcon.setImage(Assets.ADRENALINE_IDLE);
         }
         buildCounter.reset();
 
@@ -249,7 +252,7 @@ public class MyWorld extends World {
     /**
      * Attempts to find a path between both endpoints.
      * See the A* Pathfinding Algorithm: https://www.youtube.com/watch?v=-L-WgKMFuhE
-     * 
+     *
      * @ return Whether the pathfinding was successful.
      */
     public boolean checkForWin() {
@@ -292,18 +295,18 @@ public class MyWorld extends World {
 
     /**
      * Finishes the game and displays a message.
-     * 
+     *
      * @param win Whether the game was won.
      */
     public void endGame(boolean win) {
         UIIcon banner = null;
 
         if (win) {
-            banner = new UIIcon(Constants.WIN_MSG);
+            banner = new UIIcon(Assets.WIN_MSG);
             //showText("You Escaped the Wildfire!", getWidth() / 2, getHeight() / 2);
             Util.log("Game won! Can you beat your time?");
         } else {
-            banner = new UIIcon(Constants.LOSE_MSG);
+            banner = new UIIcon(Assets.LOSE_MSG);
             //showText("The Wildfire Consumed You!", getWidth() / 2, getHeight() / 2);
             Util.log("Game lost! Better luck next time!");
         }
@@ -319,7 +322,7 @@ public class MyWorld extends World {
      * @return If there are any unlocked buildable tiles adjacent to the given cell.
      */
     public boolean checkAdjacent(int x, int y) {
-        int[][] coords = {{x, y-1}, {x, y+1}, {x-1, y}, {x+1, y}};
+        int[][] coords = {{x, y - 1}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
         for (int i = 0; i < coords.length; i++) {
             Buildable tile = getObject(coords[i][0], coords[i][1], Buildable.class);
             if (tile != null) { // Check if has neighbouring tiles
