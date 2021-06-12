@@ -5,6 +5,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The scene where the game occurs.
+ */
 public class MyWorld extends World {
 
     // Counters
@@ -26,8 +29,10 @@ public class MyWorld extends World {
         init();
     }
 
-    // Set up the stage
-    private void init() {
+    /**
+     * Set up the stage.
+     */
+    private void init() {    
         buildCounter = new Counter(0, false);
         fireCounter = new Counter(Constants.METEOR_DELAY, false);
 
@@ -36,9 +41,8 @@ public class MyWorld extends World {
 
         // Create UI elements
         addObject(buildIcon = new UIIcon(Constants.BUILD_READY), getWidth() - 2, getHeight() - 1);
-        addObject(adrenalineIcon = new UIIcon(Constants.ADRENALINE), buildIcon.getX() - 2, buildIcon.getY());
-        adrenalineIcon.setVisible(false);
-        addObject(rainIcon = new Powerup(Constants.EXTINGUISH), adrenalineIcon.getX() - 2, buildIcon.getY());
+        addObject(adrenalineIcon = new UIIcon(Constants.ADRENALINE_IDLE), buildIcon.getX() - 2, buildIcon.getY());
+        addObject(rainIcon = new Powerup(), adrenalineIcon.getX() - 2, buildIcon.getY());
 
         // Add start and finish tiles
         addObject(start = new Endpoint(false), gen.getStart().x, gen.getStart().y);
@@ -70,9 +74,9 @@ public class MyWorld extends World {
             if (Greenfoot.mouseClicked(null))
                 buildTile(Greenfoot.getMouseInfo());
         } else if (buildCounter.value() <= Constants.BUILD_COOLDOWN / 2) {
-            buildIcon.setImage(Constants.BUILD_WAIT);
+            buildIcon.setImage(Constants.BUILD_WAIT2);
         } else {
-            buildIcon.setImage(Constants.BUILD_EMPTY);
+            buildIcon.setImage(Constants.BUILD_WAIT1);
         }
 
         if (!buildCounter.started)
@@ -80,13 +84,13 @@ public class MyWorld extends World {
 
         // Win the game if the start and end are connected
         if (checkForWin())
-            winGame();
+            endGame(true);
 
         // Lose if all the tiles have been burned
         // Flaw: can still lose the game if no tiles placed or if break all tiles
         // TODO: confirmation message: do you want to break your last tile?
         if (fireCounter.started && getObjects(BridgeTile.class).isEmpty()) //
-            loseGame();
+            endGame(false);
 
         // Spread the fire
         if (fireCounter.value() <= 0) {
@@ -95,7 +99,10 @@ public class MyWorld extends World {
         }
     }
 
-    private void showBuildPreview(MouseInfo mouse) {
+    /**
+     * Show the valid build spaces for the tile nearest to the mouse.
+     */
+    public void showBuildPreview(MouseInfo mouse) {
         if (mouse == null) // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
             return;
 
@@ -125,7 +132,10 @@ public class MyWorld extends World {
             lastNearest.showBuildableSpots();
     }
 
-    private void buildTile(MouseInfo mouse) {
+    /**
+     * Attempts to place, remove, or extinguish a tile at the provided location.
+     */
+    public void buildTile(MouseInfo mouse) {
         if (mouse == null) // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
             return;
 
@@ -137,7 +147,11 @@ public class MyWorld extends World {
         if (mouse.getButton() == 1) {  
             // If the powerup is active, extinguish the tile at this cell if it exists
             if (rainIcon.isActive() && getObject(x, y, BridgeTile.class) != null) {
-                getObject(x, y, BridgeTile.class).setState(BridgeTile.State.WET);
+                for (int x0 = x - 1; x0 <= x + 1; x0++)
+                    for (int y0 = y - 1; y0 <= y + 1; y0++)
+                        if (getObject(x0, y0, BridgeTile.class) != null)
+                            getObject(x0, y0, BridgeTile.class).setState(BridgeTile.State.WET);
+
                 rainIcon.reset();
                 worldChanged = true;
             }
@@ -176,11 +190,11 @@ public class MyWorld extends World {
         // Reset build timer
         if (burningCount / (double) tiles.size() >= Constants.ADRENALINE_THRESHOLD) {
             buildCounter.setMax((int) (Constants.BUILD_COOLDOWN * Constants.ADRENALINE_REDUCTION));
-            adrenalineIcon.setVisible(true);
+            adrenalineIcon.setImage(Constants.ADRENALINE_ACTIVE);
         }
         else {
             buildCounter.setMax(Constants.BUILD_COOLDOWN);
-            adrenalineIcon.setVisible(false);
+            adrenalineIcon.setImage(Constants.ADRENALINE_IDLE);
         }
         buildCounter.reset();
 
@@ -190,7 +204,10 @@ public class MyWorld extends World {
 
     // Game Methods
 
-    private void createMeteorEvent() {
+    /**
+     * Creates a two opposite moving fireballs at a random location.
+     */
+    public void createMeteorEvent() {
         // Create initial round of fire
         if (!firstMeteor) {
             firstMeteor = true;
@@ -229,11 +246,13 @@ public class MyWorld extends World {
         }
     }
 
-    /*
-     * A* Pathfinding Algorithm
-     * Source: https://www.youtube.com/watch?v=-L-WgKMFuhE
+    /**
+     * Attempts to find a path between both endpoints.
+     * See the A* Pathfinding Algorithm: https://www.youtube.com/watch?v=-L-WgKMFuhE
+     * 
+     * @ return Whether the pathfinding was successful.
      */
-    private boolean checkForWin() {
+    public boolean checkForWin() {
         if (getObjects(Buildable.class).size() < (int) start.getDistance(finish))         // Skip if too few tiles
             return false;
         if (!(start.hasNeighbour() && finish.hasNeighbour())) // Skip if both sides have no neighbours
@@ -271,30 +290,35 @@ public class MyWorld extends World {
         return false;
     }
 
-    private void winGame() {
-        showText("You Escaped the Wildfire!", getWidth() / 2, getHeight() / 2);
-        /*TextBanner winMsg = new TextBanner();
-        winMsg.setImage("win.png");
-        addObject(winMsg, WORLD_WIDTH / 2, WORLD_HEIGHT / 2);*/
-        Util.log("Game won! Can you beat your time?");
-        Greenfoot.stop();
-    }
+    /**
+     * Finishes the game and displays a message.
+     * 
+     * @param win Whether the game was won.
+     */
+    public void endGame(boolean win) {
+        UIIcon banner = null;
 
-    private void loseGame() {
-        showText("The Wildfire Consumed You!", getWidth() / 2, getHeight() / 2);
-        Util.log("Game lost! Better luck next time!");
-        Greenfoot.stop();
-    }
+        if (win) {
+            banner = new UIIcon(Constants.WIN_MSG);
+            //showText("You Escaped the Wildfire!", getWidth() / 2, getHeight() / 2);
+            Util.log("Game won! Can you beat your time?");
+        } else {
+            banner = new UIIcon(Constants.LOSE_MSG);
+            //showText("The Wildfire Consumed You!", getWidth() / 2, getHeight() / 2);
+            Util.log("Game lost! Better luck next time!");
+        }
 
-    @Override
-    public void stopped() {
-        // Util.log("Time: %.1fsec", (double) Util.currentTime() / 1000.0);
-        // Still off by magnitude
+        addObject(banner, getWidth() / 2, getHeight() / 2);
+        Util.log("Time: %.1fsec", Util.currentTime());
+        Greenfoot.stop();
     }
 
     // Tile Methods
 
-    private boolean checkAdjacent(int x, int y) {
+    /**
+     * @return If there are any unlocked buildable tiles adjacent to the given cell.
+     */
+    public boolean checkAdjacent(int x, int y) {
         int[][] coords = {{x, y-1}, {x, y+1}, {x-1, y}, {x+1, y}};
         for (int i = 0; i < coords.length; i++) {
             Buildable tile = getObject(coords[i][0], coords[i][1], Buildable.class);

@@ -1,37 +1,60 @@
-
 import greenfoot.*;
 
+/**
+ * An interactable image that provides a cooldown.
+ */
 public class Powerup extends UIIcon {
 
     private Counter cooldown;
-    private boolean active;
+    private State state = State.WAIT;
 
-    public Powerup(GreenfootImage image) {
-        super(image);
-        setVisible(false);
-        cooldown = new Counter(Constants.EXTINGUISH_COOLDOWN, true);
+    public Powerup() {
+        super(State.WAIT.icon);
+        cooldown = new Counter(Constants.RAIN_COOLDOWN, true);
     }
 
     public void act() {
         cooldown.count();
-        if (cooldown.value() <= 0) {
-            setVisible(true);
-            if (Greenfoot.mouseClicked(this))
-                active = true;
-        } else {
-            setVisible(false);
+
+        switch (state) {
+            case WAIT:
+            if (cooldown.value() <= 0)
+                state = State.READY;
+            break;
+
+            case READY:
+            if (Greenfoot.mouseClicked(this) || Greenfoot.isKeyDown("Space"))
+                state = State.ACTIVE;
+            break;
         }
 
+        setImage(state.icon);
     }
 
+    /**
+     * @return Whether the powerup has finished its cooldown.
+     */
     public boolean isActive() {
-        return active;
+        return state == State.ACTIVE;
     }
 
     public void reset() {
         cooldown.reset();
-        active = false;
-        setVisible(false);
+        state = State.WAIT;
+    }
+
+    private enum State {
+        READY(Constants.RAIN_READY), 
+
+        ACTIVE(Constants.RAIN_ACTIVE), 
+
+        WAIT(Constants.RAIN_WAIT);
+
+        GreenfootImage icon;
+
+        State(GreenfootImage icon) {
+            this.icon = icon;
+        }
     }
 
 }

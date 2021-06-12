@@ -1,19 +1,24 @@
 import greenfoot.*;
 
+/**
+ * A wooden tile used to build a bridge.
+ */
 public class BridgeTile extends Buildable {
 
     private int health = Constants.TILE_HEALTH;
-    private int actCounter;
-    private State state;
+    private Counter counter = new Counter(0, true);
+    private State state = State.NORMAL;
 
     @Override
     public void act() {        
-        if (state == State.WET && --actCounter <= 0)
-            setState(State.NORMAL);
+        counter.count();
 
-        if (isBurning()) {
-            if (--actCounter <= 0) {          
-                actCounter = Constants.FIRE_DELAY;
+        if (counter.value() <= 0) {
+            counter.reset();
+
+            if (state == State.WET) { // Set state to normal once water wears off
+                setState(State.NORMAL);
+            } else if (state == State.BURNING) {
                 this.health--;
 
                 // Remove if burnt up
@@ -22,31 +27,47 @@ public class BridgeTile extends Buildable {
                     return;
                 }
 
-                // Spread fire to neighbours if under health threshold
-                if (percentHealth() <= Constants.SPREAD_THRESHOLD)
+                // Spread fire to non-wet neighbours if under health threshold
+                if (percentHealth() <= Constants.SPREAD_THRESHOLD){
                     for (BridgeTile tile : getNeighbours(1, false, BridgeTile.class))
-                        if (tile.state == State.NORMAL)
-                            tile.setState(State.BURNING);
+                        tile.ignite();
+
+                }
 
                 updateImage();
             }
         }
     }
 
+    /**
+     * @return The remaining health percentage of this tile.
+     */
     private double percentHealth() {
         return (double) health / Constants.TILE_HEALTH;
     }
 
+    /**
+     * @return Whether this tile is on fire.
+     */
     public boolean isBurning() {
         return state == State.BURNING;
+    }
+
+    /**
+     * Sets this tile on fire.
+     */
+    public void ignite() {
+        if (state == State.NORMAL)
+            setState(State.BURNING);
     }
 
     public void setState(State state) {
         this.state = state;
         if (state == State.WET)
-            actCounter = Constants.WET_DURATION;
+            counter.setMax(Constants.WET_DURATION);
         else
-            actCounter = Constants.FIRE_DELAY;
+            counter.setMax(Constants.FIRE_DELAY);  
+        counter.reset();
         updateImage();
     }
 
@@ -73,7 +94,10 @@ public class BridgeTile extends Buildable {
         getImage().drawImage(img, 0, 0);
     }
 
-    public static enum State {
+    /**
+     * The condition of this tile.
+     */
+    public enum State {
         NORMAL, BURNING, WET;
     }
 

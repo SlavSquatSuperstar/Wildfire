@@ -4,6 +4,9 @@ import java.util.*;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * A utility class for randomly generating worlds.
+ */
 public class WorldGenerator {
 
     // ensure the tiles aren't too close to the top/bottom edges
@@ -17,18 +20,27 @@ public class WorldGenerator {
         this.height = height;
     }
 
+    /**
+     * Return a random location for the start endpoint.
+     */
     public Point getStart() {
         if (start == null)
             start = new Point(0, Util.random(buffer, height - buffer));
         return start;
     }
 
+    /**
+     * Return a random location for the finish endpoint.
+     */
     public Point getFinish() {
         if (finish == null)
             finish = new Point(width, Util.random(buffer, height - buffer));
         return finish;
     }
 
+    /**
+     * Return weighted locations for generating obstacles.
+     */
     public HashMap<Point, Integer> getObstacleLocations() {
         if (obstacleLocations == null) {
             obstacleLocations = new HashMap<Point, Integer>();

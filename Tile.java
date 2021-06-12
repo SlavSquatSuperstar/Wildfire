@@ -1,18 +1,23 @@
-
 import greenfoot.*;
 
 import java.awt.Point;
 import java.util.List;
 
 /**
- * Represents physical objects in the world.
+ * A physical object inside the world.
  */
 public abstract class Tile extends Actor {
 
+    /**
+     * @return The distance in cell between this tile and another.
+     */
     public double getDistance(Tile other) {
         return getDistance(new Point(other.getX(), other.getY()));
     }
 
+    /**
+     * @return The distance in cell between this tile and a point in space.
+     */
     public double getDistance(Point other) {
         return Math.sqrt(
             Math.pow((this.getX() - other.x), 2) +
@@ -20,6 +25,11 @@ public abstract class Tile extends Actor {
         );
     }
 
+    /**
+     * Measure how optimal this tile is to travel on. Used in the A* Pathfinding Algorithm.
+     * 
+     * @return The aggregate distance from this tile to both endpoints.
+     */
     public int getFCost(Tile start, Tile finish) {
         int g_cost = (int) getDistance(start) * 10;
         int h_cost = (int) getDistance(finish) * 10;

@@ -1,26 +1,33 @@
 import greenfoot.*;
 
+/**
+ * A burning ball of fire that ignites wooden tiles.
+ */
 public class Flame extends Actor {
 
     private Direction dir;
-    private int speed = Constants.METEOR_SPEED;
+    private Counter moveCounter;
     private int strength = Constants.METEOR_STRENGTH;
-    private int moveCounter;
-    
+
+    /**
+     * Initializes a flame with a direction.
+     * 
+     * @param Up, down, left, or right.
+     */
     public Flame(String dir) {
         this.dir = Direction.valueOf(dir.toUpperCase());
+        moveCounter = new Counter(Constants.METEOR_MOVE_DELAY, true);
     }
 
     public void act() {
-        if (--moveCounter <= 0) {
-            moveCounter = speed;
-
+        moveCounter.count();
+        if (moveCounter.value() <= 0) {
+            moveCounter.reset();
             // Set any touching bridge tiles on fire
             if (!getIntersectingObjects(BridgeTile.class).isEmpty()) {
-                getIntersectingObjects(BridgeTile.class).get(0).setState(BridgeTile.State.BURNING);
+                getIntersectingObjects(BridgeTile.class).get(0).ignite();
                 strength--;
             }
-
             // Move
             switch (dir) {
                 case UP:
@@ -43,7 +50,10 @@ public class Flame extends Actor {
             getWorld().removeObject(this);
     }
 
-    public static enum Direction {
+    /**
+     * Which way this flame should move.
+     */
+    public enum Direction {
         UP, DOWN, LEFT, RIGHT;
     }
 

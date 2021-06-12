@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Represents objects in the world that can be placed.
+ * An object in the world that can be built from.
  */
 public class Buildable extends Tile {
-
-    // public abstract boolean buildEnabled();
 
     public List<Buildable> getNeighbours() {
         return getNeighbours(1, false, Buildable.class);

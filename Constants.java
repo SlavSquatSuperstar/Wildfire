@@ -1,12 +1,19 @@
-import greenfoot.*;
+import greenfoot.GreenfootImage;
 
+/**
+ * A storage class for game parameters and textures.
+ */
 public final class Constants {
 
     // TODO read from config file
     private Constants() {}
 
+    private static GreenfootImage createTexture(String filename) {
+        return new GreenfootImage(filename);
+    }
+
     // World Parameters
-    public static final int WORLD_WIDTH = 20;
+    public static final int WORLD_WIDTH = 21;
     public static final int WORLD_HEIGHT = 15;
     public static final int TILE_SIZE = 32;
     public static final int TILE_HEALTH = 12;
@@ -14,35 +21,41 @@ public final class Constants {
     public static final int WORLDGEN_BUFFER = 2;
 
     // Build Parameters
-    public static final int BUILD_COOLDOWN = 60; // How long to wait until placing/breaking blocks
-    public static final double ADRENALINE_THRESHOLD = 0.3; // When to apply "adrenaline" (% bridge burning)
-    public static final double ADRENALINE_REDUCTION = 0.5; // How much to reduce build time when under adrenaline
+    public static final int BUILD_COOLDOWN = 65; // How long to wait until placing/breaking blocks
+    public static final double ADRENALINE_THRESHOLD = 0.35; // When to apply "adrenaline" (% bridge burning)
+    public static final double ADRENALINE_REDUCTION = 0.4; // How much to reduce build time when under adrenaline
 
     // Fire Spread Parameters
-    public static final int FIRE_DELAY = 70; // How long to wait spread fire
-    public static final double SPREAD_THRESHOLD = 0.75; // When to spread fire (% health remaining)
+    public static final int FIRE_DELAY = 60; // How long to wait spread fire
+    public static final double SPREAD_THRESHOLD = 0.60; // When to spread fire (% health remaining)
     public static final int METEOR_DELAY = FIRE_DELAY * 5; // How long to wait create a meteor event
-    public static final int METEOR_SPEED = 8; // How long to wait to move the flame particles
+    public static final int METEOR_MOVE_DELAY = 10; // How long to wait to move the flame particles
     public static final int METEOR_STRENGTH = 2; // How many tiles the flame particles can ignite
-    
+
     // Extinguish Parameters
-    public static final int EXTINGUISH_COOLDOWN = FIRE_DELAY * 3;
-    public static final int WET_DURATION = FIRE_DELAY * 2; // How long to wait till water dries
+    public static final int RAIN_COOLDOWN = 600; // How long to wait to reuse extinguish ability
+    public static final int WET_DURATION = 400; // How long to wait till water dries
 
     // Tile Textures   
-    public static final GreenfootImage FLAME = new GreenfootImage("flame.png");
-    public static final GreenfootImage BRIDGE_TILE = new GreenfootImage("wood_tile.png");
-    public static final GreenfootImage OVERLAY1 = new GreenfootImage("fire_overlay1.png");
-    public static final GreenfootImage OVERLAY2 = new GreenfootImage("fire_overlay2.png");
-    public static final GreenfootImage OVERLAY3 = new GreenfootImage("fire_overlay3.png");
-    public static final GreenfootImage OVERLAY4 = new GreenfootImage("fire_overlay4.png");
-    public static final GreenfootImage WATER_OVERLAY = new GreenfootImage("water_overlay.png");
+    public static final GreenfootImage FLAME = createTexture("flame.png");
+    public static final GreenfootImage BRIDGE_TILE = createTexture("wood_tile.png");
+    public static final GreenfootImage OVERLAY1 = createTexture("fire_overlay1.png");
+    public static final GreenfootImage OVERLAY2 = createTexture("fire_overlay2.png");
+    public static final GreenfootImage OVERLAY3 = createTexture("fire_overlay3.png");
+    public static final GreenfootImage OVERLAY4 = createTexture("fire_overlay4.png");
+    public static final GreenfootImage WATER_OVERLAY = createTexture("water_overlay.png");
 
-    // UI Textures   
-    public static final GreenfootImage BUILD_READY = new GreenfootImage("build_icon_ready.png");
-    public static final GreenfootImage BUILD_WAIT = new GreenfootImage("build_icon_wait.png");
-    public static final GreenfootImage BUILD_EMPTY = new GreenfootImage("build_icon_empty.png");
-    public static final GreenfootImage ADRENALINE = new GreenfootImage("adrenaline_icon.png");
-    public static final GreenfootImage EXTINGUISH = new GreenfootImage("raincloud.png");
+    // Gameplay Icons   
+    public static final GreenfootImage BUILD_READY = createTexture("build_ready.png");
+    public static final GreenfootImage BUILD_WAIT1 = createTexture("build_wait1.png");
+    public static final GreenfootImage BUILD_WAIT2 = createTexture("build_wait2.png");
+    public static final GreenfootImage ADRENALINE_ACTIVE = createTexture("adrenaline_active.png");
+    public static final GreenfootImage ADRENALINE_IDLE = createTexture("adrenaline_idle.png");
+    public static final GreenfootImage RAIN_READY = createTexture("rain_ready.png");
+    public static final GreenfootImage RAIN_WAIT = createTexture("rain_wait.png");
+    public static final GreenfootImage RAIN_ACTIVE = createTexture("rain_active.png");
 
+    // Text Banners
+    public static final GreenfootImage WIN_MSG = createTexture("win_message.png");
+    public static final GreenfootImage LOSE_MSG = createTexture("lose_message.png");
 }

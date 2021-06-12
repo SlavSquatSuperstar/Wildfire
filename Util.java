@@ -1,17 +1,26 @@
-import greenfoot.*;
+import greenfoot.Greenfoot;
 
 import java.util.IllegalFormatException;
 
+/**
+ * A helper class for miscellaneous functions.
+ */
 public final class Util {
 
     private static long startTime = System.currentTimeMillis();
 
     private Util() {}
 
-    public static long currentTime() {
-        return System.currentTimeMillis() - startTime;
+    /**
+     * @return the time in seconds since the simulation started.
+     */
+    public static double currentTime() {
+        return (System.currentTimeMillis() - startTime) / 1e3;
     }
 
+    /**
+     * Prints a message to the console.
+     */
     public static void log(Object msg, Object... args) {
         try {
             System.out.printf("%s\n", String.format(msg.toString(), args));
@@ -22,6 +31,12 @@ public final class Util {
         }
     }
 
+    /**
+     * Generates a random integer.
+     * 
+     * @param min the lower bound (inclusive).
+     * @param max the upper bound (exclusive).
+     */
     public static int random(int min, int max) {
         return Greenfoot.getRandomNumber(max - min) + min;
     }
