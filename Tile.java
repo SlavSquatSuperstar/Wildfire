@@ -1,43 +1,40 @@
+
 import greenfoot.*;
 
-public class Tile extends Actor {
+import java.awt.Point;
+import java.util.List;
 
-    private int health = Constants.TILE_HEALTH;
-    private int fireCounter = Constants.FIRE_DELAY;
-    private boolean burning = false;
+/**
+ * Represents physical objects in the world.
+ */
+public abstract class Tile extends Actor {
 
-    public void act() {
-        if (burning)
-            fireCounter--;
-
-        if (fireCounter == 0) {
-            fireCounter = Constants.FIRE_DELAY;
-
-            this.health--;
-            double percentHealth = (double) health / 10;
-
-            // Spread fire to neighbours if under health threshold
-            if (percentHealth <= Constants.SPREAD_THRESHOLD)
-                for (Tile tile : getNeighbours(1, false, Tile.class))
-                    tile.setBurning(true);
-
-            // Change texture based on health
-            GreenfootImage img = getImage();
-            if (percentHealth <= 0)
-                getWorld().removeObject(this);
-            else if (percentHealth <= 0.25)
-                img.drawImage(Constants.OVERLAY4, 0, 0);
-            else if (percentHealth <= 0.5)
-                img.drawImage(Constants.OVERLAY3, 0, 0);
-            else if (percentHealth <= 0.75)
-                img.drawImage(Constants.OVERLAY2, 0, 0);
-            else if (percentHealth <= 1.0)
-                img.drawImage(Constants.OVERLAY1, 0, 0);
-        }
+    public double getDistance(Tile other) {
+        return getDistance(new Point(other.getX(), other.getY()));
     }
 
-    public void setBurning(boolean burning) {
-        this.burning = burning;
+    public double getDistance(Point other) {
+        return Math.sqrt(
+            Math.pow((this.getX() - other.x), 2) +
+            Math.pow((this.getY() - other.y), 2)
+        );
+    }
+
+    public int getFCost(Tile start, Tile finish) {
+        int g_cost = (int) getDistance(start) * 10;
+        int h_cost = (int) getDistance(finish) * 10;
+        return g_cost + h_cost;
+    }
+
+    // Override method to copy rather than reference the source image
+    @Override
+    public void setImage(GreenfootImage img) {
+        super.setImage(new GreenfootImage(img));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d, %d)", getClass().getName(), getX(), getY());
     }
 
 }
