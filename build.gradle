@@ -3,9 +3,9 @@ plugins {
     id 'application'
 }
 
-group 'com.ericweng'
-version '1.0'
-sourceCompatibility = 1.8
+group 'io.github.slavsquatsuperstar'
+version '1.0.1'
+sourceCompatibility = targetCompatibility = 1.11
 mainClassName = 'wildfire.WildfireLauncher'
 
 dependencies {

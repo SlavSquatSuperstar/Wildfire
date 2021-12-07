@@ -85,6 +85,7 @@ public class BridgeTile extends Buildable {
         setImage(Assets.BRIDGE_TILE);
 
         // Draw the damage overlay
+        // Keep as "if" to layer multiple textures
         if (percentHealth() <= 0.25)
             drawImage(Assets.OVERLAY3);
         if (percentHealth() <= 0.5)

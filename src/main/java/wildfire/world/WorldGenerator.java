@@ -1,4 +1,7 @@
-package wildfire;
+package wildfire.world;
+
+import wildfire.Constants;
+import wildfire.Util;
 
 import java.util.*;
 import java.awt.Point;
@@ -9,14 +12,15 @@ import java.awt.Point;
 public class WorldGenerator {
 
     // ensure the tiles aren't too close to the top/bottom edges
-    private static int buffer = Constants.WORLDGEN_BUFFER;
-    private int width, height;
+    private static final int BUFFER = Constants.WORLDGEN_BUFFER;
+    private final int WIDTH, HEIGHT;
     private Point start, finish;
-    private HashMap<Point, Integer> obstacleLocations;
+    private int[][] obstacleLocations;
+//    private HashMap<Point, Integer> obstacleLocations;
 
     public WorldGenerator(int width, int height) {
-        this.width = width;
-        this.height = height;
+        this.WIDTH = width;
+        this.HEIGHT = height;
     }
 
     /**
@@ -24,7 +28,7 @@ public class WorldGenerator {
      */
     public Point getStart() {
         if (start == null)
-            start = new Point(0, Util.random(buffer, height - buffer));
+            start = new Point(0, Util.random(BUFFER, HEIGHT - BUFFER));
         return start;
     }
 
@@ -33,30 +37,32 @@ public class WorldGenerator {
      */
     public Point getFinish() {
         if (finish == null)
-            finish = new Point(width, Util.random(buffer, height - buffer));
+            finish = new Point(WIDTH, Util.random(BUFFER, HEIGHT - BUFFER));
         return finish;
     }
 
     /**
      * Return weighted locations for generating obstacles.
      */
-    public HashMap<Point, Integer> getObstacleLocations() {
+    public int[][] getObstacleLocations() {
         if (obstacleLocations == null) {
-            obstacleLocations = new HashMap<Point, Integer>();
+            obstacleLocations = new int[WIDTH][HEIGHT];
             //Rectangle2D bounds = new Rectangle2D.Double(buffer, buffer, width - 1 - buffer, height - 1 - buffer);
-            double slope = (double) (finish.y - start.y) / (finish.x - start.x);
-            for (int x = buffer; x < width - buffer; x++) {
+            float slope = (float) (finish.y - start.y) / (finish.x - start.x);
+            for (int x = BUFFER; x < WIDTH - BUFFER; x++) {
                 Point p = new Point(x, (int) yOfX(x, slope, start.y));
-
-                obstacleLocations.put(p, 20);
-                obstacleLocations.put(new Point(p.x, p.y+1), 10);
-                obstacleLocations.put(new Point(p.x, p.y-1), 10);
+                obstacleLocations[p.x][p.y] = 20;
+                obstacleLocations[p.x][p.y+1] = 10;
+                obstacleLocations[p.x][p.y-1] = 10;
             }
         }
         return obstacleLocations;
     }
 
-    private double yOfX(int x, double slope, int xInt) {
+    /**
+     * Evaluate the function y = f(x) at the provided x.
+     */
+    private float yOfX(int x, float slope, int xInt) {
         return x * slope + xInt;
     }
 

@@ -2,4 +2,4 @@
 
 BASEDIR=$(dirname "$0")
 echo "Launching Wildfire"
-java -jar $BASEDIR/Wildfire-1.0.jar
+java -jar "$BASEDIR"/*.jar

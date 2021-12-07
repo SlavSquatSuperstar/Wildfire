@@ -1,8 +1,7 @@
 package wildfire;
 
 import bh.greenfoot.runner.GreenfootRunner;
-
-import java.io.File;
+import wildfire.world.WildfireWorld;
 
 /**
  * The standalone launcher for the Greenfoot scenario.
@@ -14,7 +13,7 @@ public class WildfireLauncher extends GreenfootRunner {
         // 2. Bootstrap the runner class.
         bootstrap(WildfireLauncher.class,
                 // 3. Prepare the configuration for the runner based on the world class
-                Configuration.forWorld(MyWorld.class)
+                Configuration.forWorld(WildfireWorld.class)
                         // Set the project name as you wish
                         .projectName("Escape the Wildfire!")
         );

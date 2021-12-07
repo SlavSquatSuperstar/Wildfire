@@ -1,18 +1,26 @@
-package wildfire;
+package wildfire.world;
 
-import greenfoot.*;
-import wildfire.actors.*;
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+import greenfoot.MouseInfo;
+import greenfoot.World;
+import wildfire.Assets;
+import wildfire.Constants;
+import wildfire.Counter;
+import wildfire.Util;
+import wildfire.actors.Flame;
+import wildfire.actors.Powerup;
+import wildfire.actors.UIIcon;
 import wildfire.actors.tiles.*;
 
-import java.awt.Point;
-
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The scene where the game occurs.
  */
-public class MyWorld extends World {
+public class WildfireWorld extends World {
 
     // Counters
     private Counter fireCounter, buildCounter;
@@ -26,7 +34,7 @@ public class MyWorld extends World {
     private UIIcon buildIcon, adrenalineIcon;
     private Powerup rainIcon;
 
-    public MyWorld() {
+    public WildfireWorld() {
         super(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT, Constants.TILE_SIZE);
         Util.log("===================================");
         Util.log("Game starting. Place any tile!");
@@ -53,12 +61,14 @@ public class MyWorld extends World {
         addObject(finish = new Endpoint(true), gen.getFinish().x, gen.getFinish().y);
 
         // Add random obstacles
-        int added = 0;
-        for (Point p : gen.getObstacleLocations().keySet()) {
-            if (Greenfoot.getRandomNumber(100) < gen.getObstacleLocations().get(p)) {
-                addObject(new Obstacle(), p.x, p.y);
-                if (++added >= Constants.OBSTACLE_COUNT)
-                    break;
+        int numObstacles = 0;
+        outer:
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                if (Greenfoot.getRandomNumber(100) < gen.getObstacleLocations()[x][y]) {
+                    addObject(new Obstacle(), x, y);
+                    if (++numObstacles >= Constants.OBSTACLE_COUNT) break outer;
+                }
             }
         }
     }
@@ -69,8 +79,7 @@ public class MyWorld extends World {
         fireCounter.count();
 
         // Show the player valid build spots
-        if (Greenfoot.mouseMoved(null))
-            showBuildPreview(Greenfoot.getMouseInfo());
+        if (Greenfoot.mouseMoved(null)) showBuildPreview(Greenfoot.getMouseInfo());
 
         // Check for player input
         if (buildCounter.value() <= 0) { // Only allow buidling/breaking tiles once cooldown reached
@@ -83,18 +92,15 @@ public class MyWorld extends World {
             buildIcon.setImage(Assets.BUILD_WAIT1);
         }
 
-        if (!buildCounter.started)
-            return;
+        if (!buildCounter.started) return;
 
         // Win the game if the start and end are connected
-        if (checkForWin())
-            endGame(true);
+        if (checkForWin()) endGame(true);
 
         // Lose if all the tiles have been burned
         // Flaw: can still lose the game if no tiles placed or if break all tiles
         // TODO: confirmation message: do you want to break your last tile?
-        if (fireCounter.started && getObjects(BridgeTile.class).isEmpty()) //
-            endGame(false);
+        if (fireCounter.started && getObjects(BridgeTile.class).isEmpty()) endGame(false);
 
         // Spread the fire
         if (fireCounter.value() <= 0) {
@@ -107,17 +113,15 @@ public class MyWorld extends World {
      * Show the valid build spaces for the tile nearest to the mouse.
      */
     public void showBuildPreview(MouseInfo mouse) {
-        if (mouse == null) // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
-            return;
-
+        // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
+        if (mouse == null) return;
         int x = mouse.getX();
         int y = mouse.getY();
 
         Buildable nearest = null;
         double min = Integer.MAX_VALUE;
         for (Buildable tile : getObjects(Buildable.class)) {
-            if (tile instanceof Endpoint && ((Endpoint) tile).locked)
-                continue;
+            if (tile instanceof Endpoint && ((Endpoint) tile).locked) continue;
             // Don't count if tile completely blocked
             double distance = tile.getDistance(new Point(x, y));
             if (distance < min) {
@@ -126,23 +130,19 @@ public class MyWorld extends World {
             }
         }
 
-        if (nearest.equals(lastNearest))
-            return;
+        if (nearest != null && nearest.equals(lastNearest)) return;
 
         lastNearest = nearest;
-
         removeObjects(getObjects(PreviewTile.class));
-        if (lastNearest != null)
-            lastNearest.showBuildableSpots();
+        if (lastNearest != null) lastNearest.showBuildableSpots();
     }
 
     /**
      * Attempts to place, remove, or extinguish a tile at the provided location.
      */
     public void buildTile(MouseInfo mouse) {
-        if (mouse == null) // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
-            return;
-
+        // Sometimes when pressing "Act", Greenfoot returns a null MouseInfo object
+        if (mouse == null) return;
         int x = mouse.getX();
         int y = mouse.getY();
         boolean worldChanged = false; // Only reset build cooldown if a block was modified
@@ -173,9 +173,9 @@ public class MyWorld extends World {
             }
         }
 
-        if (!worldChanged)
-            return;
+        if (!worldChanged) return;
 
+        // Execute after placing first block
         if (!buildCounter.started) {
             buildCounter.setMax(Constants.BUILD_COOLDOWN);
             buildCounter.started = true;
@@ -183,12 +183,11 @@ public class MyWorld extends World {
             Util.log("The race is on! Cross the gap!");
         }
 
-        // Apply cooldown buff based on amount of bridge burning
+        // Apply cooldown buff (adrenaline) based on amount of bridge burning
         int burningCount = 0;
         List<BridgeTile> tiles = getObjects(BridgeTile.class);
         for (BridgeTile tile : tiles) {
-            if (tile.isBurning())
-                burningCount++;
+            if (tile.isBurning()) burningCount++;
         }
 
         // Reset build timer
@@ -250,8 +249,8 @@ public class MyWorld extends World {
     }
 
     /**
-     * Attempts to find a path between both endpoints.
-     * See the A* Pathfinding Algorithm: https://www.youtube.com/watch?v=-L-WgKMFuhE
+     * Attempts to find a path between both endpoints. See the A* Pathfinding Algorithm:
+     * https://www.youtube.com/watch?v=-L-WgKMFuhE
      *
      * @ return Whether the pathfinding was successful.
      */
@@ -278,8 +277,7 @@ public class MyWorld extends World {
             }
 
             // Stop searching if we found the end
-            if (current.equals(finish))
-                return true;
+            if (current.equals(finish)) return true;
 
             open.remove(current);
             closed.add(current);
@@ -299,7 +297,7 @@ public class MyWorld extends World {
      * @param win Whether the game was won.
      */
     public void endGame(boolean win) {
-        UIIcon banner = null;
+        UIIcon banner;
 
         if (win) {
             banner = new UIIcon(Assets.WIN_MSG);
@@ -323,11 +321,10 @@ public class MyWorld extends World {
      */
     public boolean checkAdjacent(int x, int y) {
         int[][] coords = {{x, y - 1}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
-        for (int i = 0; i < coords.length; i++) {
-            Buildable tile = getObject(coords[i][0], coords[i][1], Buildable.class);
+        for (int[] coord : coords) {
+            Buildable tile = getObject(coord[0], coord[1], Buildable.class);
             if (tile != null) { // Check if has neighbouring tiles
-                if (tile instanceof Endpoint && ((Endpoint) tile).locked)
-                    continue;
+                if (tile instanceof Endpoint && ((Endpoint) tile).locked) continue;
                 return true;
             }
         }
@@ -336,8 +333,8 @@ public class MyWorld extends World {
 
     private <T extends Actor> T getObject(int x, int y, Class<T> cls) {
         List<T> objectsAtPos = getObjectsAt(x, y, cls);
-        if (!objectsAtPos.isEmpty())
-            return objectsAtPos.get(0); // Should only exist one, so just return the first
+        // Should only exist one, so just return the first
+        if (!objectsAtPos.isEmpty()) return objectsAtPos.get(0);
         return null;
     }
 

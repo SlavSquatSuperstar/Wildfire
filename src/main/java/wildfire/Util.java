@@ -9,7 +9,7 @@ import java.util.IllegalFormatException;
  */
 public final class Util {
 
-    private static long startTime = System.currentTimeMillis();
+    private static final long START_TIME = System.currentTimeMillis();
 
     private Util() {}
 
@@ -17,7 +17,7 @@ public final class Util {
      * @return the time in seconds since the simulation started.
      */
     public static double currentTime() {
-        return (System.currentTimeMillis() - startTime) / 1e3;
+        return (System.currentTimeMillis() - START_TIME) / 1e3;
     }
 
     /**
